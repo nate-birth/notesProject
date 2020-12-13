@@ -1,0 +1,26 @@
+<div id="note_block">
+    {% for note in notes %}
+    {{ note.title }}
+    <form id="delete_form" action="/delete" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="n_id" value="{{ note.id }}">
+        <a href="#" onclick="document.forms['delete_form'].submit();">delete</a>
+    </form>
+    {% if note.desc.content %}
+    <div class="toggleid" data-toggle="#note{{note.id}}">
+        {{ note.desc.content }}
+    </div>
+    <form id="note{{note.id}}" style="display: none;" class="submitForm" action="/update_desc" method="post">
+        {% csrf_token %}
+        <textarea name="content" id="" cols="30" rows="10">{{ note.desc.content }}</textarea>
+        <input type="hidden" name="d_id" value="{{ note.desc.id }}">
+    </form>
+    {% else %}
+    <form action="/add_desc" method="post" class="submitForm">
+        {% csrf_token %}
+        {{desc_form}}
+        <input type="hidden" name="n_id" value="{{ note.id }}">
+    </form>
+    {% endif %}
+    {% endfor %}
+</div>

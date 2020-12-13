@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Notes</title>
+</head>
+<body>
+    <h4>Notes</h4>
+    <hr>
+    <div id="note_block">
+        {% for note in notes %}
+        {{ note.title }}
+        <form class="delete_form" action="/delete" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="k_id" value="{{ note.id }}">
+            <input type="submit" value="delete">
+        </form>
+        {% if note.desc.content %}
+        <div class="toggleid" data-toggle="#note{{note.id}}">
+            {{ note.desc.content }}
+        </div>
+        <form id="note{{note.id}}" style="display: none;" class="updatedesc submitForm" action="/update_desc" method="post">
+            {% csrf_token %}
+            <textarea name="content" id="" cols="30" rows="10">{{ note.desc.content }}</textarea>
+            <input type="hidden" name="d_id" value="{{ note.desc.id }}">
+        </form>
+        {% else %}
+        <form action="/add_desc" method="post" class="descForm submitForm">
+            {% csrf_token %}
+            {{desc_form}}
+            <input type="hidden" name="n_id" value="{{ note.id }}">
+        </form>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div>
+        <form id="create" action="/create_note" method="post">
+        {% csrf_token %}
+        {{ note_form.as_p }}
+        <input type="submit" value="Add Note">
+        </form>
+    </div>
+    
+</body>
+<script>
+$('.toggleid').click(function() {
+    $($(this).data('toggle')).toggle();
+    $(this).toggle();
+});
+$('.submitForm').focusout(function() {
+    $(this).submit();
+});
+$('#create').submit(function(e){
+    e.preventDefault()
+    $.ajax({
+        url: '/create_note',
+        method: 'post',
+        data: $(this).serialize(),
+        success: function(serverResponse){
+            console.log('this is working')
+            $('#note_block').html(serverResponse)
+        }
+    })
+    $(this).trigger('reset')
+});
+$('.delete_form').submit(function(e){
+    e.preventDefault()
+    $.ajax({
+        url: '/delete',
+        method: 'post',
+        data: $(this).serialize(),
+        success: function(serverResponse){
+            $('#note_block').html(serverResponse)
+        }
+    })
+    $(this).trigger('reset')
+});
+$('.descForm').submit(function(e){
+    e.preventDefault()
+    $.ajax({
+        url: '/add_desc',
+        method: 'post',
+        data: $(this).serialize(),
+        success: function(serverResponse){
+            console.log('this is working')
+            $('#note_block').html(serverResponse)
+        }
+    })
+    $(this).trigger('reset')
+});
+$('.updatedesc').submit(function(e){
+    e.preventDefault()
+    $.ajax({
+        url: '/update_desc',
+        method: 'post',
+        data: $(this).serialize(),
+        success: function(serverResponse){
+            console.log('this is working')
+            $('#note_block').html(serverResponse)
+        }
+    })
+    $(this).trigger('reset')
+});
+
+</script>
+</html>
